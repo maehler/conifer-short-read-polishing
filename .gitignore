@@ -1,0 +1,6 @@
+data/
+reference/
+logs/
+results/
+.snakemake/
+metadata/

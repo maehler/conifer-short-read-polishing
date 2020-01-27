@@ -1,0 +1,17 @@
+__default__:
+    time: 60
+    partition: core
+    ntasks: 1
+    job_name: "{rule}.{wildcards}"
+    output: "logs/{rule}.{wildcards}.%j.out"
+    error: "logs/{rule}.{wildcards}.%j.err"
+
+bwa_index:
+    time: 180
+    partition: node
+    ntasks: 20
+
+bwa_align:
+    time: 600
+    partition: node
+    ntasks: 20

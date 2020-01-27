@@ -1,0 +1,24 @@
+# Fasta file with contigs that should be polished
+contig_fasta: data/contigs.fa
+# Short read metadata
+read_metadata: metadata/read_metadata.tsv
+
+iterations: 2
+
+# Cluster configuration
+# Here's an example using the SLURM profile found at the URL
+# listed below.
+cluster:
+    cookiecutter_url: https://github.com/Snakemake-Profiles/slurm
+    profile_name: test_slurm
+    use-conda: true
+    restart-times: 0
+    jobs: 100
+    latency-wait: 120
+
+    # Parameters specific for the cookiecutter template
+    account: test_slurm
+    output: "logs/slurm-%j.out"
+    error: "logs/slurm-%j.err"
+    partition: core
+    submit_script: slurm-submit-advanced.py
