@@ -93,14 +93,18 @@ rule bwa_align:
         index=expand('reference/contigs_pilon_{{iteration}}.{ext}',
             ext=['amb', 'ann', 'bwt', 'pac', 'sa'])
     output:
-        'results/alignments/read_alignments_{iteration}/{bam_name}_alignments.bam'
+        bam='results/alignments/read_alignments_{iteration}/{bam_name}_alignments.bam',
+        bai='results/alignments/read_alignments_{iteration}/{bam_name}_alignments.bam.bai'
     threads: 20
     params:
         index_prefix='reference/contigs_pilon_{iteration}'
     conda: 'envs/bwa.yaml'
     shell:
         '''
-        bwa mem -t {threads} {input.reads}
+        bwa mem -t {threads} -o {output.bam}.sam {params.index_prefix} {input.reads}
+        samtools view -@ $(({threads} - 1)) -o {output.bam} {output.bam}.sam
+        samtools index {output.bam}
+        rm {output.bam}.sam
         '''
 
 rule bwa_index:
