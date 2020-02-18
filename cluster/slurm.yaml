@@ -11,6 +11,6 @@ bwa_index:
     ntasks: 5
 
 bwa_align:
-    time: 600
+    time: 14400
     partition: node
     ntasks: 20

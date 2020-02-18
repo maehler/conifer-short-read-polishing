@@ -102,8 +102,9 @@ rule bwa_align:
     shell:
         '''
         bwa mem -t {threads} -o {output.bam}.sam {params.index_prefix} {input.reads}
-        samtools view -@ $(({threads} - 1)) -o {output.bam} {output.bam}.sam
-        samtools index {output.bam}
+        samtools view -bu {output.bam}.sam | \\
+            samtools sort -m 5G -@ $(({threads} - 1)) -o {output.bam}
+        samtools index -@ {threads} {output.bam}
         rm {output.bam}.sam
         '''
 
