@@ -58,8 +58,8 @@ rule bam_fofn:
     output: 'results/alignments/read_alignments_{iteration}.fofn'
     run:
         with open(output[0], 'w') as f:
-            for fname in input[0]:
-                f.write(fname)
+            for fname in input:
+                print(Path(fname).resolve(), file=f)
         
 def get_read_filename(wildcards):
     '''
