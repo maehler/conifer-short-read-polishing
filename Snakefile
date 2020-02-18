@@ -14,7 +14,8 @@ validate(read_metadata, 'schemas/read_metadata.schema.yaml')
 wildcard_constraints:
     iteration=r'\d*'
 
-localrules: all, cluster_config, link_contigs, bam_fofn
+localrules: all, cluster_config, link_contigs, bam_fofn, index_fasta,
+    fasta_slices, fasta_slice_fofn
 
 rule all:
     input:
@@ -47,6 +48,67 @@ rule pilon:
     output:
         'results/pilon/contigs_pilon_{iteration}.fa',
         'data/contigs_pilon_{iteration}.fa'
+
+checkpoint fasta_slices:
+    '''
+    Split the contigs. In order to save space, the slices only
+    contain the names of the contigs, and not the sequences.
+    '''
+    input: 'data/contigs_pilon_{iteration}.fa.fai'
+    output: directory('data/contigs_pilon_{iteration}_slices')
+    run:
+        outdir = Path(output[0])
+        outdir.mkdir(exist_ok=True)
+        current_slice = []
+        current_slice_idx = 0
+        current_slice_size = 0
+        with open(input[0]) as f:
+            for line in f:
+                line = line.strip().split()
+                current_slice.append(line[0])
+                current_slice_size += int(line[1])
+                if current_slice_size >= config['slice_size']:
+                    with open('{dir}/contigs_pilon_{iteration}_{slice_idx}' \
+                            .format(dir=outdir, iteration=wildcards.iteration, slice_idx=current_slice_idx), 'w') as of:
+                        of.write('\n'.join(current_slice))
+                    current_slice = []
+                    current_slice_size = 0
+                    current_slice_idx += 1
+            if current_slice_size > 0:
+                with open('{dir}/contigs_pilon_{iteration}_{slice_idx}' \
+                        .format(dir=outdir, iteration=wildcards.iteration, slice_idx=current_slice_idx), 'w') as of:
+                    of.write('\n'.join(current_slice))
+
+def collect_fasta_slices(wildcards):
+    '''
+    Collect the fasta slices and return them sorted by their slice index.
+    '''
+    output_dir = checkpoints.fasta_slices.get(iteration=wildcards.iteration).output[0]
+    fname_pattern = '{output_dir}/contigs_pilon_{iteration}_{{slice}}'.format(output_dir=output_dir, iteration=wildcards.iteration)
+    gwc = glob_wildcards(fname_pattern)
+    fnames = expand(fname_pattern, slice=gwc.slice)
+    return sorted(fnames, key=lambda x: int(re.search(r'\d+$', x).group(0)))
+
+rule fasta_slice_fofn:
+    '''
+    Create a file-of-filenames of the fasta slices.
+    '''
+    input: collect_fasta_slices
+    output: 'data/contigs_pilon_{iteration}_slices.fofn'
+    run:
+        with open(output[0], 'w') as f:
+            f.write('\n'.join(str(Path(x).resolve()) for x in input))
+
+rule index_fasta:
+    '''
+    Index a fasta file.
+    '''
+    input: '{fastafile}'
+    output: '{fastafile}.fai'
+    wildcard_constraints:
+        fastafile='.+\.(fa|fasta)(\.gz)?'
+    conda: 'envs/samtools.yaml'
+    shell: 'samtools faidx {input}'
 
 rule bam_fofn:
     '''
