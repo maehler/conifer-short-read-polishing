@@ -70,14 +70,14 @@ checkpoint fasta_slices:
                 if current_slice_size >= config['slice_size']:
                     with open('{dir}/contigs_pilon_{iteration}_{slice_idx}' \
                             .format(dir=outdir, iteration=wildcards.iteration, slice_idx=current_slice_idx), 'w') as of:
-                        of.write('\n'.join(current_slice))
+                        print('\n'.join(current_slice), file=of)
                     current_slice = []
                     current_slice_size = 0
                     current_slice_idx += 1
             if current_slice_size > 0:
                 with open('{dir}/contigs_pilon_{iteration}_{slice_idx}' \
                         .format(dir=outdir, iteration=wildcards.iteration, slice_idx=current_slice_idx), 'w') as of:
-                    of.write('\n'.join(current_slice))
+                    print('\n'.join(current_slice), file=of)
 
 def collect_fasta_slices(wildcards):
     '''
