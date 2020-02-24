@@ -15,7 +15,7 @@ wildcard_constraints:
     iteration=r'\d*'
 
 localrules: all, cluster_config, link_contigs, bam_fofn, index_fasta,
-    fasta_slices, fasta_slice_fofn
+    fasta_slices, fasta_slice_fofn, aggregate_pilon
 
 rule all:
     input:
@@ -33,21 +33,54 @@ rule link_contigs:
         ln -s {input} $(basename {output})
         '''
 
+def get_pilon_slices(wildcards):
+    output_dir = checkpoints.fasta_slices.get(iteration=int(wildcards.iteration)-1).output[0]
+    fname_pattern = '{output_dir}/contigs_pilon_{iteration}_{{slice}}' \
+        .format(output_dir=output_dir, iteration=int(wildcards.iteration)-1)
+    gwc = glob_wildcards(fname_pattern)
+    fnames = expand('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta',
+        iteration=wildcards.iteration, slice=gwc.slice)
+    return sorted(fnames, key=lambda x: int(re.search(r'(\d+)\.fasta$', x).group(1)))
+
+rule aggregate_pilon:
+    input: get_pilon_slices
+    output:
+        fasta=protected('results/pilon_{iteration}/contigs_pilon_{iteration}.fasta'),
+        linked_fasta='data/contigs_pilon_{iteration}.fasta'
+    shell:
+        '''
+        echo {input} | xargs -n100 cat > {output.fasta}
+        cd data
+        ln -s ../{output.fasta} $(basename {output.linked_fasta})
+        '''
+
 rule pilon:
     '''
-    Run one iteration of pilon.
-
-    TODO:
-        - Set up a conda environment.
-        - Write an actual command.
-        - Split the input and run pilon on each slice and merge the results.
+    Run one iteration of pilon on a slice of the assembly.
     '''
     input:
-        fasta=lambda wildcards: 'data/contigs_pilon_{iteration}.fa'.format(iteration=int(wildcards.iteration)-1),
-        bams=lambda wildcards: 'results/alignments/read_alignments_{iteration}.fofn'.format(iteration=int(wildcards.iteration)-1)
+        fasta=lambda wildcards: 'data/contigs_pilon_{iteration}.fa' \
+            .format(iteration=int(wildcards.iteration)-1),
+        bams=lambda wildcards: 'results/alignments/read_alignments_{iteration}.fofn' \
+            .format(iteration=int(wildcards.iteration)-1),
+        fasta_slice=lambda wildcards: 'data/contigs_pilon_{iteration}_slices/contigs_pilon_{iteration}_{{slice}}' \
+            .format(iteration=int(wildcards.iteration)-1)
     output:
-        'results/pilon/contigs_pilon_{iteration}.fa',
-        'data/contigs_pilon_{iteration}.fa'
+        temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta')
+    threads: 16
+    conda: 'envs/pilon.yaml'
+    shell:
+        '''
+        bam_arg=$(cat {input.bams} | xargs -n1 -I{{}} echo '--frags {{}}')
+        pilon \\
+            -Xms98G \\
+            -Xmx98G \\
+            --threads {threads} \\
+            --genome {input.fasta} \\
+            ${{bam_arg}} \\
+            --targets {input.fasta_slice} \\
+            --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.slice}
+        '''
 
 checkpoint fasta_slices:
     '''
