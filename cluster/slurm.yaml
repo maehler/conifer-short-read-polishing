@@ -10,6 +10,15 @@ pilon:
     time: 4320
     ntasks: 10
 
+alignment_window_coverage:
+    time: 780
+
+coverage_histograms:
+    time: 780
+
+flagstats:
+    time: 720
+
 bwa_index:
     time: 1440
     ntasks: 5
