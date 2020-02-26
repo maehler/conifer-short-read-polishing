@@ -3,15 +3,15 @@ def get_pilon_slices(wildcards):
     fname_pattern = '{output_dir}/contigs_pilon_{iteration}_{{slice}}' \
         .format(output_dir=output_dir, iteration=int(wildcards.iteration)-1)
     gwc = glob_wildcards(fname_pattern)
-    fnames = expand('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta',
-        iteration=wildcards.iteration, slice=gwc.slice)
+    fnames = expand('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{fix}_{slice}.fasta',
+        iteration=wildcards.iteration, fix=wildcards.fix, slice=gwc.slice)
     return sorted(fnames, key=lambda x: int(re.search(r'(\d+)\.fasta$', x).group(1)))
 
 rule aggregate_pilon:
     input: get_pilon_slices
     output:
-        fasta=protected('results/pilon_{iteration}/contigs_pilon_{iteration}.fasta'),
-        linked_fasta='data/contigs_pilon_{iteration}.fasta'
+        fasta=protected('results/pilon_{iteration}/contigs_pilon_{iteration}_{fix}.fasta'),
+        linked_fasta='data/contigs_pilon_{iteration}_{fix}.fasta'
     shell:
         '''
         echo {input} | xargs -n100 cat > {output.fasta}
@@ -31,20 +31,25 @@ rule pilon:
         fasta_slice=lambda wildcards: 'data/contigs_pilon_{iteration}_slices/contigs_pilon_{iteration}_{{slice}}' \
             .format(iteration=int(wildcards.iteration)-1)
     output:
-        temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta')
-    threads: 16
+        temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{fix}_{slice}.fasta')
+    params:
+        strays=lambda wildcards: '--nostrays' \
+            if wildcards.fix == 'snps,indels' or wildcards.fix == 'bases' \
+            else ''
+    threads: 10
     conda: '../envs/pilon.yaml'
     shell:
         '''
         bam_arg=$(cat {input.bams} | xargs -n1 -I{{}} echo '--frags {{}}')
         pilon \\
-            -Xms98G \\
-            -Xmx98G \\
+            -Xms59G \\
+            -Xmx59G \\
             --threads {threads} \\
+            --fix {wildcards.fix} {params.strays} \\
             --genome {input.fasta} \\
             ${{bam_arg}} \\
             --targets {input.fasta_slice} \\
-            --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.slice}
+            --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.fix}_{wildcards.slice}
         '''
 
 checkpoint fasta_slices:
