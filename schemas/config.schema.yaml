@@ -8,6 +8,13 @@ properties:
     read_metadata:
         type: string
         description: path to tsv file with sequencing read metadata
+    iterations:
+        type: integer
+        description: how many rounds of polishing to run
+    slice_size:
+        type: integer
+        description: number of bases that each FASTA slice should contain after splitting
+        minimum: 50000
     fix_errors:
         type: array
         description: what types of errors that pilon should attempt to fix
@@ -30,5 +37,7 @@ properties:
 required:
     - contig_fasta
     - read_metadata
+    - iterations
+    - slice_size
     - fix_errors
 
