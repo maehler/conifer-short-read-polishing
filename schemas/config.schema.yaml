@@ -8,8 +8,27 @@ properties:
     read_metadata:
         type: string
         description: path to tsv file with sequencing read metadata
+    fix_errors:
+        type: array
+        description: what types of errors that pilon should attempt to fix
+        items:
+            type: string
+            enum:
+                - snps
+                - indels
+                - bases
+                - gaps
+                - local
+                - all
+                - bases
+                - none
+                - amb
+                - breaks
+                - circles
+                - novel
 
 required:
     - contig_fasta
     - read_metadata
+    - fix_errors
 

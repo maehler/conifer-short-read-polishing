@@ -5,6 +5,9 @@ read_metadata: metadata/read_metadata.tsv
 
 iterations: 2
 slice_size: 100000000
+fix_errors:
+    - snps
+    - indels
 
 # Cluster configuration
 # Here's an example using the SLURM profile found at the URL
