@@ -28,6 +28,7 @@ rule alignment_window_coverage:
                 >> {output.coverage}
         done < {input.bams}
         """
+
 rule coverage_histograms:
     input: 'results/alignments/read_alignments_{iteration}.fofn'
     output: 'results/alignments/read_alignments_{iteration}_genomecov.tsv'

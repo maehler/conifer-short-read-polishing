@@ -12,6 +12,7 @@ pilon:
 
 alignment_window_coverage:
     time: 780
+    ntasks: 2
 
 coverage_histograms:
     time: 780
