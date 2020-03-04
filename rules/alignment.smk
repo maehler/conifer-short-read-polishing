@@ -34,9 +34,6 @@ def get_read_filename(wildcards):
 rule bwa_align:
     '''
     Align short reads against the contigs using bwa mem.
-
-    TODO:
-        - Make sure appropriate output is created.
     '''
     input:
         reads=get_read_filename,
