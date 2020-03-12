@@ -19,7 +19,6 @@ properties:
         type: string
         description: type of read
         examples:
-            - PacBio Sequel
             - Chromium 10X
             - Illumina NovaSeq
     comment:
