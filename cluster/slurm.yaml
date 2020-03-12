@@ -7,7 +7,7 @@ __default__:
     error: "logs/{rule}.{wildcards}.%j.err"
 
 pilon:
-    time: 4320
+    time: 180
     ntasks: 10
 
 alignment_window_coverage:
