@@ -41,6 +41,7 @@ rule pilon:
             and 'all' not in config['fix-errors'] \
             else ''
     conda: '../envs/pilon.yaml'
+    envmodules: 'bioinfo-tools', 'Pilon/1.22'
     shell:
         """
         bam_arg=$(cat {input.bams} | xargs -n1 -I{{}} echo '--frags {{}}')
@@ -114,4 +115,5 @@ rule index_fasta:
     wildcard_constraints:
         fastafile='.+\.(fa|fasta)(\.gz)?'
     conda: '../envs/samtools.yaml'
+    envmodules: 'bioinfo-tools', 'samtools/1.10'
     shell: 'samtools faidx {input}'

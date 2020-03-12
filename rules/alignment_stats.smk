@@ -10,6 +10,7 @@ rule alignment_window_coverage:
         window_size=5000,
         step_size=2500
     conda: '../envs/bedtools.yaml'
+    envmodules: 'bioinfo-tools', 'BEDTools/2.27.1'
     shell:
         """
         cut -f1,2 {input.fasta_index} > {output.genome_size}
@@ -33,6 +34,7 @@ rule coverage_histograms:
     input: 'results/alignments/read_alignments_{iteration}.fofn'
     output: 'results/alignments/read_alignments_{iteration}_genomecov.tsv'
     conda: '../envs/bedtools.yaml'
+    envmodules: 'bioinfo-tools', 'BEDTools/2.27.1'
     shell:
         """
         while read -r bamfile; do
@@ -62,12 +64,14 @@ rule genome_wide_coverage_plot:
     input: 'results/alignments/read_alignments_{iteration}_global_coverage.tsv'
     output: 'results/alignments/read_alignments_{iteration}_plots/global_coverage_{maxdepth}.png'
     conda: '../envs/r.yaml'
+    envmodules: 'R/3.6.1', 'R_packages/3.6.1'
     script: '../scripts/plot_global_coverage.R'
 
 rule flagstats:
     input: 'results/alignments/read_alignments_{iteration}.fofn'
     output: 'results/alignments/read_alignments_{iteration}_flagstats.tsv'
     conda: '../envs/samtools.yaml'
+    envmodules: 'bioinfo-tools', 'samtools/1.10'
     shell:
         """
         while read -r bamfile; do
@@ -81,6 +85,7 @@ rule alignment_mapq:
     input: 'results/alignments/read_alignments_{iteration}.fofn'
     output: 'results/alignments/read_alignments_{iteration}_mapq_freq.tsv'
     conda: '../envs/samtools.yaml'
+    envmodules: 'bioinfo-tools', 'samtools/1.10'
     shell:
         """
         while read -r bamfile; do

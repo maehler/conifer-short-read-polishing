@@ -46,6 +46,7 @@ rule bwa_align:
     params:
         index_prefix='reference/contigs_pilon_{iteration}'
     conda: '../envs/bwa.yaml'
+    envmodules: 'bioinfo-tools', 'bwa/0.7.17', 'samtools/1.10'
     shell:
         """
         bwa mem -t {threads} -o {output.bam}.sam {params.index_prefix} {input.reads}
@@ -67,6 +68,7 @@ rule bwa_index:
     params:
         prefix='reference/contigs_pilon_{iteration}'
     conda: '../envs/bwa.yaml'
+    envmodules: 'bioinfo-tools', 'bwa/0.7.17'
     shell:
         """
         bwa index {input.fasta} -p {params.prefix}
