@@ -76,3 +76,19 @@ rule flagstats:
                 >> {output}
         done < {input}
         """
+
+rule alignment_mapq:
+    input: 'results/alignments/read_alignments_{iteration}.fofn'
+    output: 'results/alignments/read_alignments_{iteration}_mapq_freq.tsv'
+    conda: '../envs/samtools.yaml'
+    shell:
+        """
+        while read -r bamfile; do
+            samtools view ${{bamfile}} | \\
+                awk '{{mapqs[$5] += 1; unmapped[$5] += and($2, 4) == 4;}}
+                    END {{for (i in mapqs) printf("%d\\t%d\\t%d\\n", i, mapqs[i], unmapped[i])}}' | \\
+                sort -k1,1n | \\
+                cat <(echo -e '#' ${{bamfile}} '\\n' 'quality\\tcount\\tunmapped') - \\
+                >> {output}
+        done < {input}
+        """
