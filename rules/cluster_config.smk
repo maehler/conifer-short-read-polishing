@@ -1,7 +1,7 @@
 rule cluster_config:
-    '''
+    """
     Generate a cluster profile.
-    '''
+    """
     output: directory( \
         '{home}/.config/snakemake/{profile_name}' \
             .format(home=Path.home(), \

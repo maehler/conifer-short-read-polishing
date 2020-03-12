@@ -13,16 +13,16 @@ rule aggregate_pilon:
         fasta=protected('results/pilon_{iteration}/contigs_pilon_{iteration}.fasta'),
         linked_fasta='data/contigs_pilon_{iteration}.fasta'
     shell:
-        '''
+        """
         echo {input} | xargs -n100 cat > {output.fasta}
         cd data
         ln -s ../{output.fasta} $(basename {output.linked_fasta})
-        '''
+        """
 
 rule pilon:
-    '''
+    """
     Run one iteration of pilon on a slice of the assembly.
-    '''
+    """
     input:
         fasta=lambda wildcards: 'data/contigs_pilon_{iteration}.fasta' \
             .format(iteration=int(wildcards.iteration)-1),
@@ -42,7 +42,7 @@ rule pilon:
             else ''
     conda: '../envs/pilon.yaml'
     shell:
-        '''
+        """
         bam_arg=$(cat {input.bams} | xargs -n1 -I{{}} echo '--frags {{}}')
         pilon \\
             -Xms59G \\
@@ -53,13 +53,13 @@ rule pilon:
             ${{bam_arg}} \\
             --targets {input.fasta_slice} \\
             --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.slice}
-        '''
+        """
 
 checkpoint fasta_slices:
-    '''
+    """
     Split the contigs. In order to save space, the slices only
     contain the names of the contigs, and not the sequences.
-    '''
+    """
     input: 'data/contigs_pilon_{iteration}.fasta.fai'
     output: directory('data/contigs_pilon_{iteration}_slices')
     run:
@@ -86,9 +86,9 @@ checkpoint fasta_slices:
                     print('\n'.join(current_slice), file=of)
 
 def collect_fasta_slices(wildcards):
-    '''
+    """
     Collect the fasta slices and return them sorted by their slice index.
-    '''
+    """
     output_dir = checkpoints.fasta_slices.get(iteration=wildcards.iteration).output[0]
     fname_pattern = '{output_dir}/contigs_pilon_{iteration}_{{slice}}'.format(output_dir=output_dir, iteration=wildcards.iteration)
     gwc = glob_wildcards(fname_pattern)
@@ -96,9 +96,9 @@ def collect_fasta_slices(wildcards):
     return sorted(fnames, key=lambda x: int(re.search(r'\d+$', x).group(0)))
 
 rule fasta_slice_fofn:
-    '''
+    """
     Create a file-of-filenames of the fasta slices.
-    '''
+    """
     input: collect_fasta_slices
     output: 'data/contigs_pilon_{iteration}_slices.fofn'
     run:
@@ -106,9 +106,9 @@ rule fasta_slice_fofn:
             f.write('\n'.join(str(Path(x).resolve()) for x in input))
 
 rule index_fasta:
-    '''
+    """
     Index a fasta file.
-    '''
+    """
     input: '{fastafile}'
     output: '{fastafile}.fai'
     wildcard_constraints:
