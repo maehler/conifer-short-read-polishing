@@ -2,7 +2,7 @@ __default__:
     time: 60
     partition: core
     ntasks: 1
-    job_name: "{rule}.{wildcards}"
+    job-name: "{rule}.{wildcards}"
     output: "logs/{rule}.{wildcards}.%j.out"
     error: "logs/{rule}.{wildcards}.%j.err"
 

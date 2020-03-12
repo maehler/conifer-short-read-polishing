@@ -9,7 +9,7 @@ min_version('5.10.0')
 configfile: 'config.yaml'
 validate(config, 'schemas/config.schema.yaml')
 
-read_metadata = pd.read_table(config['read_metadata']) \
+read_metadata = pd.read_table(config['read-metadata']) \
     .set_index('filename', drop=False)
 validate(read_metadata, 'schemas/read_metadata.schema.yaml')
 
@@ -21,8 +21,8 @@ localrules: all, cluster_config, link_contigs, bam_fofn, index_fasta,
     genome_wide_coverage_plot
 
 rule all:
-    input:
-        'data/contigs_pilon_{iterations}.fasta'.format(iterations=config['iterations'])
+    input: 'data/contigs_pilon_{iterations}.fasta' \
+        .format(iterations=config['iterations'])
 
 include: 'rules/data_management.smk'
 include: 'rules/polishing.smk'

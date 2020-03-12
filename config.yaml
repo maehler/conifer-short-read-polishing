@@ -1,28 +1,35 @@
-# Fasta file with contigs that should be polished
-contig_fasta: data/contigs.fa
-# Short read metadata
-read_metadata: metadata/read_metadata.tsv
+# FASTA file with contigs that should be polished.
+contig-fasta: data/contigs.fa
 
-iterations: 2
-slice_size: 100000000
-fix_errors:
+# Short read metadata.
+read-metadata: metadata/read_metadata.tsv
+
+# How many rounds of polishing that should be performed.
+iterations: 3
+
+# Split the assembly into slices of approximately this
+# many bytes each and run the polishing on each of them.
+slice-size: 100000000
+
+# What errors that pilon should attempt to fix. See the
+# pilon documentation for legal values.
+fix-errors:
     - snps
     - indels
 
-# Cluster configuration
-# Here's an example using the SLURM profile found at the URL
-# listed below.
+# Cluster configuration.
 cluster:
-    cookiecutter_url: https://github.com/Snakemake-Profiles/slurm
-    profile_name: test_slurm
-    use-conda: true
-    restart-times: 0
-    jobs: 100
-    latency-wait: 120
+    # Cookiecutter parameters.
+    cookiecutter:
+        url: https://github.com/Snakemake-Profiles/slurm
+        profile_name: shortread_polish
+        cluster_config: cluster/slurm.yaml
+        advanced_argument_conversion: false
 
-    # Parameters specific for the cookiecutter template
-    account: test_slurm
-    output: "logs/slurm-%j.out"
-    error: "logs/slurm-%j.err"
-    partition: core
-    submit_script: slurm-submit-advanced.py
+    # Default Snakemake parameters.
+    snakemake:
+        use-conda: true
+        use-envmodules: true
+        restart-times: 0
+        jobs: 100
+        latency-wait: 120

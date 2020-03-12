@@ -34,11 +34,11 @@ rule pilon:
         temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta')
     threads: 10
     params:
-        fix=','.join(config['fix_errors']),
-        strays='--nostrays' if 'gaps' not in config['fix_errors'] \
-            and 'local' not in config['fix_errors'] \
-            and 'novel' not in config['fix_errors'] \
-            and 'all' not in config['fix_errors'] \
+        fix=','.join(config['fix-errors']),
+        strays='--nostrays' if 'gaps' not in config['fix-errors'] \
+            and 'local' not in config['fix-errors'] \
+            and 'novel' not in config['fix-errors'] \
+            and 'all' not in config['fix-errors'] \
             else ''
     conda: '../envs/pilon.yaml'
     shell:
@@ -73,7 +73,7 @@ checkpoint fasta_slices:
                 line = line.strip().split()
                 current_slice.append(line[0])
                 current_slice_size += int(line[1])
-                if current_slice_size >= config['slice_size']:
+                if current_slice_size >= config['slice-size']:
                     with open('{dir}/contigs_pilon_{iteration}_{slice_idx}' \
                             .format(dir=outdir, iteration=wildcards.iteration, slice_idx=current_slice_idx), 'w') as of:
                         print('\n'.join(current_slice), file=of)
