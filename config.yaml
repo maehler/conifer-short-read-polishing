@@ -2,7 +2,7 @@
 contig-fasta: data/contigs.fa
 
 # Short read metadata.
-read-metadata: metadata/read_metadata.tsv
+read-metadata: read_metadata.tsv
 
 # How many rounds of polishing that should be performed.
 iterations: 3
