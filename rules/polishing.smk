@@ -34,20 +34,21 @@ rule pilon:
         temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta')
     threads: 10
     params:
-        fix=','.join(config['fix-errors']),
-        strays='--nostrays' if 'gaps' not in config['fix-errors'] \
-            and 'local' not in config['fix-errors'] \
-            and 'novel' not in config['fix-errors'] \
-            and 'all' not in config['fix-errors'] \
-            else ''
+        fix=','.join(config['pilon']['fix-errors']),
+        strays='--nostrays' if 'gaps' not in config['pilon']['fix-errors'] \
+            and 'local' not in config['pilon']['fix-errors'] \
+            and 'novel' not in config['pilon']['fix-errors'] \
+            and 'all' not in config['pilon']['fix-errors'] \
+            else '',
+        javamem=config['pilon']['java-memory']
     conda: '../envs/pilon.yaml'
     envmodules: 'bioinfo-tools', 'Pilon/1.22'
     shell:
         """
         bam_arg=$(cat {input.bams} | xargs -n1 -I{{}} echo '--frags {{}}')
         pilon \\
-            -Xms59G \\
-            -Xmx59G \\
+            -Xms{params.javamem}G \\
+            -Xmx{params.javamem}G \\
             --threads {threads} \\
             --fix {params.fix} {params.strays} \\
             --genome {input.fasta} \\

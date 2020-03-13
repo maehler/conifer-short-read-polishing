@@ -18,24 +18,34 @@ properties:
         type: integer
         description: number of bases that each FASTA slice should contain after splitting
         minimum: 50000
-    fix_errors:
-        type: array
-        description: what types of errors that pilon should attempt to fix
-        items:
-            type: string
-            enum:
-                - snps
-                - indels
-                - bases
-                - gaps
-                - local
-                - all
-                - bases
-                - none
-                - amb
-                - breaks
-                - circles
-                - novel
+    pilon:
+        type: object
+        properties:
+            java-memory:
+                type: integer
+                description: amount of memory (GB) that the JVM can use
+                minimum: 1
+            fix-errors:
+                type: array
+                description: what types of errors that pilon should attempt to fix
+                items:
+                    type: string
+                    enum:
+                        - snps
+                        - indels
+                        - bases
+                        - gaps
+                        - local
+                        - all
+                        - bases
+                        - none
+                        - amb
+                        - breaks
+                        - circles
+                        - novel
+        required:
+            - java-memory
+            - fix-errors
     cluster:
         type: object
         properties:
@@ -73,4 +83,4 @@ required:
     - read-metadata
     - iterations
     - slice-size
-    - fix-errors
+    - pilon

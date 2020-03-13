@@ -11,11 +11,14 @@ iterations: 3
 # many bytes each and run the polishing on each of them.
 slice-size: 100000000
 
-# What errors that pilon should attempt to fix. See the
-# pilon documentation for legal values.
-fix-errors:
-    - snps
-    - indels
+pilon:
+    # What errors that pilon should attempt to fix. See the
+    # pilon documentation for legal values.
+    fix-errors:
+        - snps
+        - indels
+    # Memory (GB) that the JVM can use.
+    java-memory: 59
 
 # Cluster configuration.
 cluster:
