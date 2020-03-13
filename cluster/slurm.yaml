@@ -1,4 +1,5 @@
 __default__:
+    account: slurm-account
     time: 60
     partition: core
     ntasks: 1
