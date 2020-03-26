@@ -18,7 +18,7 @@ wildcard_constraints:
 
 localrules: all, cluster_config, link_contigs, bam_fofn, index_fasta,
     fasta_slices, fasta_slice_fofn, aggregate_pilon,
-    genome_wide_coverage_plot
+    genome_wide_coverage_plot, pilon_stats
 
 rule all:
     input: 'data/contigs_pilon_{iterations}.fasta' \
@@ -26,6 +26,7 @@ rule all:
 
 include: 'rules/data_management.smk'
 include: 'rules/polishing.smk'
+include: 'rules/polishing_stats.smk'
 include: 'rules/alignment_stats.smk'
 include: 'rules/alignment.smk'
 include: 'rules/cluster_config.smk'

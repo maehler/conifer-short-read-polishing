@@ -31,7 +31,8 @@ rule pilon:
         fasta_slice=lambda wildcards: 'data/contigs_pilon_{iteration}_slices/contigs_pilon_{iteration}_{{slice}}' \
             .format(iteration=int(wildcards.iteration)-1)
     output:
-        temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta')
+        fasta=temp('results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.fasta'),
+        log='results/pilon_{iteration}/polished_slices/contigs_pilon_{iteration}_{slice}.log'
     threads: 10
     params:
         fix=','.join(config['pilon']['fix-errors']),
@@ -54,7 +55,8 @@ rule pilon:
             --genome {input.fasta} \\
             ${{bam_arg}} \\
             --targets {input.fasta_slice} \\
-            --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.slice}
+            --output results/pilon_{wildcards.iteration}/polished_slices/contigs_pilon_{wildcards.iteration}_{wildcards.slice} \\
+            > {output.log}
         """
 
 checkpoint fasta_slices:
