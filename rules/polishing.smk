@@ -107,7 +107,7 @@ rule fasta_slice_fofn:
     output: 'data/contigs_pilon_{iteration}_slices.fofn'
     run:
         with open(output[0], 'w') as f:
-            f.write('\n'.join(str(Path(x).resolve()) for x in input))
+            print('\n'.join(str(Path(x).resolve()) for x in input), file=f)
 
 rule index_fasta:
     """
